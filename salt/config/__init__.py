@@ -888,6 +888,23 @@ VALID_OPTS = immutabletypes.freeze(
         # Note: to set enum arguments values like `cert_reqs` and `ssl_version` use constant names
         # without ssl module prefix: `CERT_REQUIRED` or `PROTOCOL_SSLv23`.
         "ssl": (dict, bool, type(None)),
+
+        # token
+        'token_storage_type': str,
+        'token_redis_host': str,
+        'token_redis_port': int,
+        'token_redis_db': int,
+        'token_redis_password': str,
+        'token_redis_timeout': int,
+
+        # session
+        'session_storage_type': str,
+        'session_redis_host': str,
+        'session_redis_port': int,
+        'session_redis_db': int,
+        'session_redis_password': str,
+        'session_redis_timeout': int,
+
         # Controls how a multi-function job returns its data. If this is False,
         # it will return its data using a dictionary with the function name as
         # the key. This is compatible with legacy systems. If this is True, it
@@ -1593,6 +1610,21 @@ DEFAULT_MASTER_OPTS = immutabletypes.freeze(
         "enable_ssh_minions": False,
         "netapi_allow_raw_shell": False,
         "fips_mode": False,
+
+        # token
+        'token_storage_type': 'file',
+        'token_redis_host': '',
+        'token_redis_port': 6379,
+        'token_redis_db': 0,
+        'token_redis_password': None,
+        'token_redis_timeout': 720,
+        # session
+        'session_storage_type': 'file',
+        'session_redis_host': '',
+        'session_redis_port': 6379,
+        'session_redis_db': 0,
+        'session_redis_password': None,
+        'session_redis_timeout': 720,
     }
 )
 
