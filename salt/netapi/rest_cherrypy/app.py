@@ -606,6 +606,10 @@ import salt.utils.stringutils
 import salt.utils.versions
 import salt.utils.yaml
 
+import cherrys
+cherrypy.lib.sessions.RedisSession = cherrys.RedisSession
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -1149,6 +1153,14 @@ class LowDataAdapter:
         self.opts = cherrypy.config["saltopts"]
         self.apiopts = cherrypy.config["apiopts"]
         self.api = salt.netapi.NetapiClient(self.opts)
+        LowDataAdapter._cp_config.update({
+            'tools.sessions.timeout': self.opts.get('session_redis_timeout'),
+            'tools.sessions.storage_type': self.opts.get('session_storage_type'),
+            'tools.sessions.host': self.opts.get('session_redis_host'),
+            'tools.sessions.port': self.opts.get('session_redis_port'),
+            'tools.sessions.db': self.opts.get('session_redis_db'),
+            'tools.sessions.password': self.opts.get('session_redis_password', None)
+        })
 
     def exec_lowstate(self, client=None, token=None):
         """
