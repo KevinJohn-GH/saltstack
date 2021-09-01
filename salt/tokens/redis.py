@@ -85,7 +85,8 @@ def mk_token(opts, tdata):
     tdata["token"] = tok
     serial = salt.payload.Serial(opts)
     try:
-        redis_client.set(tok, serial.dumps(tdata))
+        redis_timeout = opts.get('token_redis_timeout')
+        redis_client.setex(tok, redis_timeout, serial.dumps(tdata))
     except Exception as err:  # pylint: disable=broad-except
         log.warning(
             "Authentication failure: cannot save token %s to redis: %s", tok, err
