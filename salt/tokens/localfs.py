@@ -37,7 +37,8 @@ class RedisToken(object):
             password=self.password)
 
     def exist(self, token):
-        return bool(self.client.exists(token))
+        # return bool(self.client.exists(token))
+        return self.get(token) is not None
 
     def set(self, token, data):
         self.client.setex(token, self.timeout * 60, data)
