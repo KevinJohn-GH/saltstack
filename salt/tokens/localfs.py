@@ -30,7 +30,7 @@ class RedisToken(object):
         self.password = opts.get('token_redis_password', None)
         self.timeout = opts.get('token_redis_timeout')
 
-        self.client = redis.Redis(
+        self.client = redis.StrictRedis(
             host=self.host,
             port=self.port,
             db=self.db,
@@ -40,7 +40,7 @@ class RedisToken(object):
         return bool(self.client.exists(token))
 
     def set(self, token, data):
-        self.client.setex(token, data, self.timeout * 60)
+        self.client.setex(token, self.timeout * 60, data)
 
     def get(self, token):
         return self.client.get(token)
@@ -96,7 +96,6 @@ class FileToken(object):
             for token in filenames:
                 ret.append(token)
         return ret
-
 
 
 def mk_token(opts, tdata):
