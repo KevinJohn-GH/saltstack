@@ -895,7 +895,9 @@ VALID_OPTS = immutabletypes.freeze(
         'token_redis_port': int,
         'token_redis_db': int,
         'token_redis_password': str,
-        'token_redis_timeout': int,
+        'token_redis_expire_minutes': int,
+        'token_redis_socket_timeout': int,
+        'token_redis_socket_connect_timeout': int,
 
         # session
         'session_storage_type': str,
@@ -1613,18 +1615,16 @@ DEFAULT_MASTER_OPTS = immutabletypes.freeze(
 
         # token
         'token_storage_type': 'file',
-        'token_redis_host': '',
-        'token_redis_port': 6379,
-        'token_redis_db': 0,
-        'token_redis_password': None,
-        'token_redis_timeout': 720,
+        'token_redis_instances': [],
+        'token_redis_expire_minutes': 720,
+        'token_redis_socket_timeout': 60,
+        'token_redis_socket_connect_timeout': 5,
         # session
         'session_storage_type': 'file',
-        'session_redis_host': '',
-        'session_redis_port': 6379,
-        'session_redis_db': 0,
-        'session_redis_password': None,
+        'session_redis_instances': [],
         'session_redis_timeout': 720,
+        # job cache
+        'returner_redis_instances': []
     }
 )
 
