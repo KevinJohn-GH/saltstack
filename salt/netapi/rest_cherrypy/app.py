@@ -1141,7 +1141,7 @@ class LowDataAdapter:
     _cp_config = {
         "tools.salt_token.on": True,
         "tools.sessions.on": True,
-        "tools.sessions.timeout": 60 * 10,  # 10 hours
+        # "tools.sessions.timeout": 60 * 10,  # 10 hours
         # 'tools.autovary.on': True,
         "tools.hypermedia_out.on": True,
         "tools.hypermedia_in.on": True,
@@ -1156,10 +1156,7 @@ class LowDataAdapter:
         LowDataAdapter._cp_config.update({
             'tools.sessions.timeout': self.opts.get('session_redis_timeout'),
             'tools.sessions.storage_type': self.opts.get('session_storage_type'),
-            'tools.sessions.host': self.opts.get('session_redis_host'),
-            'tools.sessions.port': self.opts.get('session_redis_port'),
-            'tools.sessions.db': self.opts.get('session_redis_db'),
-            'tools.sessions.password': self.opts.get('session_redis_password', None)
+            'tools.sessions.redis_instances': self.opts.get('session_redis_instances')
         })
 
     def exec_lowstate(self, client=None, token=None):
