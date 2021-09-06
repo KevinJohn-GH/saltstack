@@ -1141,7 +1141,7 @@ class LowDataAdapter:
     _cp_config = {
         "tools.salt_token.on": True,
         "tools.sessions.on": True,
-        "tools.sessions.timeout": 60 * 10,  # 10 hours
+        # "tools.sessions.timeout": 60 * 10,  # 10 hours
         # 'tools.autovary.on': True,
         "tools.hypermedia_out.on": True,
         "tools.hypermedia_in.on": True,
