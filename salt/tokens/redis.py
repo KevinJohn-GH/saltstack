@@ -59,9 +59,6 @@ class RedisToken(object):
                 log.warning(
                     "Failed to connect to redis at %s:%s - %s", instance['host'], instance['port'], err
                 )
-                self.clients = []
-                break
-
 
     def _exist(self, client, token):
         return bool(client.exists(token))
