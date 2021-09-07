@@ -910,6 +910,10 @@ VALID_OPTS = immutabletypes.freeze(
         # job cache
         'returner_redis_instances': list,
 
+        # django auth
+        'django_auth_path': str,
+        'django_auth_settings': str,
+
         # Controls how a multi-function job returns its data. If this is False,
         # it will return its data using a dictionary with the function name as
         # the key. This is compatible with legacy systems. If this is True, it
@@ -1627,7 +1631,10 @@ DEFAULT_MASTER_OPTS = immutabletypes.freeze(
         'session_redis_instances': [],
         'session_redis_timeout': 720,
         # job cache
-        'returner_redis_instances': []
+        'returner_redis_instances': [],
+        # django auth
+        'django_auth_path': '',
+        'django_auth_settings': '',
     }
 )
 
