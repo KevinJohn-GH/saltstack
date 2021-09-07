@@ -185,7 +185,7 @@ def _get_options(ret=None):
     #     "skip_full_coverage_check": "cluster.skip_full_coverage_check",
     # }
 
-    attrs = {'returner_redis': 'returner_redis'}
+    attrs = {'returner_redis_instances': 'returner_redis_instances'}
 
     if salt.utils.platform.is_proxy():
         # return {
@@ -199,7 +199,7 @@ def _get_options(ret=None):
         #         "redis.cluster.skip_full_coverage_check", False
         #     ),
         # }
-        return __opts__.get('redis.returner_redis', [])
+        return __opts__.get('redis.returner_redis_instances', [])
 
     _options = salt.returners.get_returner_options(
         __virtualname__, ret, attrs, __salt__=__salt__, __opts__=__opts__
@@ -231,7 +231,7 @@ def _get_serv(ret=None):
     #     )
     # return REDIS_POOL
     redis_instances = []
-    _options = _get_options(ret).get('returner_redis')
+    _options = _get_options(ret).get('returner_redis_instances')
     for _option in _options:
         host = _option.get('host')
         port = _option.get('port')
