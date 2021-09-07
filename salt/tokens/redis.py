@@ -9,6 +9,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import hashlib
 import logging
 import os
+import sys
 
 import salt.payload
 from salt.ext import six
