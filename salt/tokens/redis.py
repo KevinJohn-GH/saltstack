@@ -81,7 +81,7 @@ class RedisToken(object):
     def set(self, token, data):
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = [executor.submit(fn=self._set, client=client, token=token, data=data) for client in self.clients]
-            wait(futures)
+            wait(futures, return_when='FIRST_COMPLETED')
 
     def _get(self, client, token):
         return client.get(token)
@@ -100,7 +100,7 @@ class RedisToken(object):
     def delete(self, token):
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = [executor.submit(fn=client.delete, token=token) for client in self.clients]
-            wait(futures)
+            wait(futures, return_when='FIRST_COMPLETED')
 
     def _keys(self, client):
         return client.keys()
