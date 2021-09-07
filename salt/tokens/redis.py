@@ -9,6 +9,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import hashlib
 import logging
 import os
+import sys
 
 import salt.payload
 from salt.ext import six
@@ -35,13 +36,33 @@ def __virtual__():
         )
     return __virtualname__
 
+
+def _wait_first_succeed(futures, fn):
+    ret = None
+    while len(futures) > 0:
+        done, not_done = wait(futures, return_when='FIRST_COMPLETED')
+        for done_future in done:
+            exception = done_future.exception()
+            if exception:
+                if type(exception) == AssertionError:
+                    log.debug('[{fn}] Future Exception: {exception}'.format(fn=fn, exception=exception))
+                else:
+                    log.error('[{fn}] Future Exception: {exception}'.format(fn=fn, exception=exception))
+                continue
+            else:
+                ret = done_future.result()
+                return ret
+        futures = list(not_done)
+    return ret
+
+
 class RedisToken(object):
 
     def __init__(self, opts):
         self.redis_instances = opts.get('token_redis_instances')
         self.expire_minutes = opts.get('token_redis_expire_minutes')
-        self.socket_timeout = opts.get('token_redis_socket_timeout', 60)
-        self.socket_connect_timeout = opts.get('token_redis_socket_connect_timeout', 5)
+        self.socket_timeout = opts.get('token_redis_socket_timeout', 10)
+        self.socket_connect_timeout = opts.get('token_redis_socket_connect_timeout', 1)
 
         self.clients = []
         for instance in self.redis_instances:
@@ -61,46 +82,53 @@ class RedisToken(object):
                 )
 
     def _exist(self, client, token):
-        return bool(client.exists(token))
+        result = bool(client.exists(token))
+        if result:
+            return result
+        else:
+            kwargs = client.connection_pool.connection_kwargs
+            raise AssertionError('Token: {token} not exist in redis://{host}:{port}/{db}'.format(
+                token=token, host=kwargs['host'], port=kwargs['port'], db=kwargs['db']))
 
     def exist(self, token):
-        for client in self.clients:
-            try:
-                ret = self._exist(client=client, token=token)
-                if ret is False:
-                    continue
-                return ret
-            except Exception as e:
-                log.error(str(e))
-                continue
-        return False
+        executor = ThreadPoolExecutor(max_workers=10)
+        futures = [executor.submit(fn=self._exist, client=client, token=token) for client in self.clients]
+        result = _wait_first_succeed(futures=futures, fn=sys._getframe().f_code.co_name)
+        return bool(result)
 
     def _set(self, client, token, data):
-        client.setex(token, self.expire_minutes * 60, data)
+        result = client.setex(token, self.expire_minutes * 60, data)
+
+        if not result:
+            kwargs = client.connection_pool.connection_kwargs
+            raise AssertionError('Token data for key {key} not set into redis://{host}:{port}/{db}'.format(
+                key=token, host=kwargs['host'], port=kwargs['port'], db=kwargs['db']))
 
     def set(self, token, data):
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(fn=self._set, client=client, token=token, data=data) for client in self.clients]
-            wait(futures)
+        executor = ThreadPoolExecutor(max_workers=10)
+        futures = [executor.submit(fn=self._set, client=client, token=token, data=data) for client in self.clients]
+        _wait_first_succeed(futures=futures, fn=sys._getframe().f_code.co_name)
 
     def _get(self, client, token):
-        return client.get(token)
+        result = client.get(token)
+        if result is None:
+            kwargs = client.connection_pool.connection_kwargs
+            raise AssertionError('key={key} not exist in redis://{host}:{port}/{db}'.format(
+                key=token, host=kwargs['host'], port=kwargs['port'], db=kwargs['db']))
+        return result
 
     def get(self, token):
-        for client in self.clients:
-            try:
-                ret = self._get(client=client, token=token)
-                if ret:
-                    return ret
-            except Exception as e:
-                log.error(str(e))
-                continue
-        return None
+        executor = ThreadPoolExecutor(max_workers=10)
+        futures = [executor.submit(fn=self._get, client=client, token=token) for client in self.clients]
+        result = _wait_first_succeed(futures=futures, fn=sys._getframe().f_code.co_name)
+        return result
+
+    def _delete(self, client, token):
+        client.delete(token)
 
     def delete(self, token):
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(fn=client.delete, token=token) for client in self.clients]
-            wait(futures)
+        executor = ThreadPoolExecutor(max_workers=10)
+        futures = [executor.submit(fn=self._delete, client=client, token=token) for client in self.clients]
 
     def _keys(self, client):
         return client.keys()
