@@ -907,6 +907,9 @@ VALID_OPTS = immutabletypes.freeze(
         'session_redis_password': str,
         'session_redis_timeout': int,
 
+        # job cache
+        'returner_redis_instances': list,
+
         # Controls how a multi-function job returns its data. If this is False,
         # it will return its data using a dictionary with the function name as
         # the key. This is compatible with legacy systems. If this is True, it
@@ -1617,8 +1620,8 @@ DEFAULT_MASTER_OPTS = immutabletypes.freeze(
         'token_storage_type': 'file',
         'token_redis_instances': [],
         'token_redis_expire_minutes': 720,
-        'token_redis_socket_timeout': 60,
-        'token_redis_socket_connect_timeout': 5,
+        'token_redis_socket_timeout': 10,
+        'token_redis_socket_connect_timeout': 1,
         # session
         'session_storage_type': 'file',
         'session_redis_instances': [],
