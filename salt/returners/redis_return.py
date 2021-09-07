@@ -281,7 +281,7 @@ def _save_load(serv, jid, load, minions=None):
     """
     # serv = _get_serv(ret=None)
     # serv.setex("load:{0}".format(jid), _get_ttl(), salt.utils.json.dumps(load))
-    result = serv.setex('load:{0}'.format(jid), json.dumps(load), _get_ttl())
+    result = serv.setex("load:{0}".format(jid), _get_ttl(), salt.utils.json.dumps(load))
     if not result:
         kwargs = serv.connection_pool.connection_kwargs
         raise AssertionError('load data for key {key} not set into redis://{host}:{port}/{db}'.format(
@@ -311,10 +311,10 @@ def _get_load(serv, jid):
     # if data:
     #     return salt.utils.json.loads(data)
     # return {}
-    data = serv.get('load:{0}'.format(jid))
+    data = serv.get("load:{0}".format(jid))
     if not data:
         raise AssertionError('Get key load:{jid}  return {result}'.format(jid=jid, result=data))
-    return json.loads(data)
+    return salt.utils.json.loads(data)
 
 
 def get_load(jid):
@@ -335,7 +335,7 @@ def _get_jid(serv, jid):
     #     if data:
     #         ret[minion] = salt.utils.json.loads(data)
     # return ret
-    result = serv.hgetall('ret:{0}'.format(jid))
+    result = serv.hgetall("ret:{0}".format(jid))
     if not result:
         kwargs = serv.connection_pool.connection_kwargs
         raise AssertionError('hgetall ret:{jid} from redis://{host}:{port}/{db} return {result}'.format(
@@ -344,7 +344,7 @@ def _get_jid(serv, jid):
     ret = {}
     for minion, data in six.iteritems(result):
         if data:
-            ret[minion] = json.loads(data)
+            ret[minion] = salt.utils.json.loads(data)
     return ret
 
 
@@ -448,7 +448,7 @@ def _clean_old_jobs(serv):
     if ret_jids and living_jids:
         to_remove = []
         for ret_key in ret_jids:
-            load_key = ret_key.replace('ret:', 'load:', 1)
+            load_key = ret_key.replace("ret:", "load:", 1)
             if load_key not in living_jids:
                 to_remove.append(ret_key)
         if len(to_remove) != 0:
