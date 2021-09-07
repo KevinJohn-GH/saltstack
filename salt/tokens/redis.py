@@ -92,8 +92,8 @@ class RedisToken(object):
     def exist(self, token):
         executor = ThreadPoolExecutor(max_workers=10)
         futures = [executor.submit(fn=self._exist, client=client, token=token) for client in self.clients]
-        result = _wait_first_succeed(futures=futures)
-        return result
+        result = _wait_first_succeed(futures=futures, fn=sys._getframe().f_code.co_name)
+        return bool(result)
 
     def _set(self, client, token, data):
         result = client.setex(token, self.expire_minutes * 60, data)
@@ -106,20 +106,20 @@ class RedisToken(object):
     def set(self, token, data):
         executor = ThreadPoolExecutor(max_workers=10)
         futures = [executor.submit(fn=self._set, client=client, token=token, data=data) for client in self.clients]
-        _wait_first_succeed(futures=futures)
+        _wait_first_succeed(futures=futures, fn=sys._getframe().f_code.co_name)
 
     def _get(self, client, token):
         result = client.get(token)
         if result is None:
             kwargs = client.connection_pool.connection_kwargs
-            raise Exception('key={key} not exist in redis://{host}:{port}/{db}'.format(
+            raise AssertionError('key={key} not exist in redis://{host}:{port}/{db}'.format(
                 key=token, host=kwargs['host'], port=kwargs['port'], db=kwargs['db']))
         return result
 
     def get(self, token):
         executor = ThreadPoolExecutor(max_workers=10)
         futures = [executor.submit(fn=self._get, client=client, token=token) for client in self.clients]
-        result = _wait_first_succeed(futures=futures)
+        result = _wait_first_succeed(futures=futures, fn=sys._getframe().f_code.co_name)
         return result
 
     def _delete(self, client, token):
