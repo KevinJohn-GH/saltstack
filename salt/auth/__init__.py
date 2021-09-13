@@ -141,8 +141,14 @@ class LoadAuth:
         fstr = "{}.acl".format(mod)
         if fstr not in self.auth:
             return None
+
+        # When making acl calls, only username
+        # are valid, so we strip anything else out.
+        _valid = ["username"]
+        _load = {key: value for (key, value) in load.items() if key in _valid}
+
         fcall = salt.utils.args.format_call(
-            self.auth[fstr], load, expected_extra_kws=AUTH_INTERNAL_KEYWORDS
+            self.auth[fstr], _load, expected_extra_kws=AUTH_INTERNAL_KEYWORDS
         )
         try:
             return self.auth[fstr](*fcall["args"], **fcall["kwargs"])
@@ -223,9 +229,9 @@ class LoadAuth:
             "eauth": load["eauth"],
         }
 
-        if self.opts["keep_acl_in_token"]:
-            acl_ret = self.__get_acl(load)
-            tdata["auth_list"] = acl_ret
+        # if self.opts["keep_acl_in_token"]:
+        acl_ret = self.__get_acl(load)
+        tdata["auth_list"] = acl_ret
 
         groups = self.get_groups(load)
         if groups:
@@ -448,7 +454,7 @@ class LoadAuth:
             # Update username for token
             username = token["name"]
             ret["username"] = username
-            auth_list = self.get_auth_list(load, token=token)
+            auth_list = token["auth_list"]
         elif auth_type == "eauth":
             if not self.authenticate_eauth(load):
                 ret["error"] = {
