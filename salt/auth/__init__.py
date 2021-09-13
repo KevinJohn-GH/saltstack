@@ -388,7 +388,7 @@ class LoadAuth:
         if token and self.opts["keep_acl_in_token"] and "auth_list" in token:
             return token["auth_list"]
         # Get acl from eauth module.
-        auth_list = self.__get_acl(load)
+        auth_list = self.__get_acl(token)
         if auth_list is not None:
             return auth_list
 
