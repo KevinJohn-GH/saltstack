@@ -151,7 +151,10 @@ class LoadAuth:
             self.auth[fstr], _load, expected_extra_kws=AUTH_INTERNAL_KEYWORDS
         )
         try:
-            return self.auth[fstr](*fcall["args"], **fcall["kwargs"])
+            if "kwargs" in fcall:
+                return self.auth[fstr](*fcall["args"], **fcall["kwargs"])
+            else:
+                return self.auth[fstr](*fcall["args"])
         except Exception as e:  # pylint: disable=broad-except
             log.debug("Authentication module threw %s", e)
             return None
