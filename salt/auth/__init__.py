@@ -234,7 +234,7 @@ class LoadAuth:
 
         # if self.opts["keep_acl_in_token"]:
         acl_ret = self.__get_acl(load)
-        tdata["auth_list"] = acl_ret
+        tdata["auth_list"] = acl_ret[load["username"]]
 
         groups = self.get_groups(load)
         if groups:
